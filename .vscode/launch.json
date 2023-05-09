@@ -9,10 +9,10 @@
 			"request": "launch",
 			"type": "cortex-debug",
 			"cwd": "${workspaceRoot}",
-			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/${workspaceFolderBasename}",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/release/${workspaceFolderBasename}",
 			"svdFile": "${workspaceFolder}/STM32H750.svd",
 			"servertype": "openocd",
-			"configFiles": ["stlink.cfg", "stm32h7x.cfg"],
+			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
 			"preLaunchTask": "Build binary",
 			"preLaunchCommands": [
 				"monitor init",
@@ -20,11 +20,11 @@
 				"monitor halt",
 				"monitor flash write_image erase app.bin 0x08000000"
 			],
-			"postLaunchCommands": ["continue"], // Don't stop before at the first line
+			"postLaunchCommands": [], // Don't stop before at the first line
 			"presentation": {
 				"hidden": false,
 				"order": 1,
-			}
+			},
 		}
 	]
 }

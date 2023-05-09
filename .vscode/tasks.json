@@ -11,7 +11,7 @@
 			],
 			"group": "build",
 			"args": [
-				"--", "-O", "binary", "app.bin"
+				"--release", "--", "-O", "binary", "app.bin"
 			],
 			"presentation": {
 				"echo": true,
@@ -21,6 +21,14 @@
 				"showReuseMessage": false,
 				"clear": true
 			}
-		}
+		},
+		{
+			"label": "Monitor",
+			"type": "shell",
+			"command": "plink",
+			"args": [ "-serial", "COM5", "-sercfg", "115200,8,n,1,N" ],
+			"presentation": {"echo": false, "clear": true },
+			"dependsOn": ["DHCP Build"]
+		},
 	]
 }
