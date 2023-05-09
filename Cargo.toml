@@ -3,7 +3,9 @@ name = "stm32h7-eth-example"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "rtic-test"
+path = "src/rtic-test.rs"
 
 [dependencies]
 panic-halt="0.2.0"

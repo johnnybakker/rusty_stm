@@ -9,7 +9,7 @@
 			"request": "launch",
 			"type": "cortex-debug",
 			"cwd": "${workspaceRoot}",
-			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/release/${workspaceFolderBasename}",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/rtic-test",
 			"svdFile": "${workspaceFolder}/STM32H750.svd",
 			"servertype": "openocd",
 			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
