@@ -1,0 +1,26 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build binary",
+			"type": "cargo",
+			"command": "objcopy",
+			"problemMatcher": [
+				"$rustc",
+				"$rust-panic"
+			],
+			"group": "build",
+			"args": [
+				"--", "-O", "binary", "app.bin"
+			],
+			"presentation": {
+				"echo": true,
+				"reveal": "never",
+				"focus": false,
+				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": true
+			}
+		}
+	]
+}

@@ -1,0 +1,30 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug Blinky",
+			"request": "launch",
+			"type": "cortex-debug",
+			"cwd": "${workspaceRoot}",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/${workspaceFolderBasename}",
+			"svdFile": "${workspaceFolder}/STM32H750.svd",
+			"servertype": "openocd",
+			"configFiles": ["stlink.cfg", "stm32h7x.cfg"],
+			"preLaunchTask": "Build binary",
+			"preLaunchCommands": [
+				"monitor init",
+				"monitor reset init",
+				"monitor halt",
+				"monitor flash write_image erase app.bin 0x08000000"
+			],
+			"postLaunchCommands": ["continue"], // Don't stop before at the first line
+			"presentation": {
+				"hidden": false,
+				"order": 1,
+			}
+		}
+	]
+}
