@@ -11,7 +11,9 @@
 			],
 			"group": "build",
 			"args": [
-				"--bin", "rtic-test", "--", "-O", "binary", "app.bin"
+				//"--bin", "rtic-test", "--", "-O", "binary", "app.bin"
+				"--release", "--bin", "ethernet-test", "--", "-O", "binary", "app.bin"
+				//"--release", "--", "-O", "binary", "app.bin"
 			],
 			"presentation": {
 				"echo": true,

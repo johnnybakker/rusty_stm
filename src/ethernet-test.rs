@@ -26,7 +26,8 @@ use core::sync::atomic::{AtomicU32, Ordering};
 static mut DES_RING: ethernet::DesRing<4, 4> = ethernet::DesRing::new();
 
 /// Locally administered MAC address
-const IP_ADDRESS: Ipv4Address = Ipv4Address::new(192, 168, 178, 100);
+//const IP_ADDRESS: Ipv4Address = Ipv4Address::new(192, 168, 178, 100);
+const IP_ADDRESS: Ipv4Address = Ipv4Address::new(192, 168, 100, 200);
 const MAC_ADDRESS: [u8; 6] = [0x02, 0x00, 0x11, 0x22, 0x33, 0x44];
 
 static TIME: AtomicU32 = AtomicU32::new(0);
@@ -217,14 +218,13 @@ fn main() -> ! {
             }
 
 
-        } else if socket.send_queue() == 0 && (time-last_send_millis) > 1000 {  
+        } else if socket.send_queue() == 0 {  
 
-			writeln!(tx, "DT: {}, {}", last_send_millis, time).unwrap();
-
+			
 			match socket.send_slice(b"hello\r\n") {
 				Ok(_) => {
 					writeln!(tx, "Transmitted hello! Closing socket...").unwrap();
-					last_send_millis = time;
+					//last_send_millis = time;
 				}
 				Err(_) => {}
 			}
