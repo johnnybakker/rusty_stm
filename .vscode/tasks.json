@@ -11,8 +11,10 @@
 			],
 			"group": "build",
 			"args": [
+
+				//"--release",
 				//"--bin", "rtic-test", "--", "-O", "binary", "app.bin"
-				"--release", "--bin", "ethernet-test", "--", "-O", "binary", "app.bin"
+				"--bin", "rtic-demo-ethernet", "--", "-O", "binary", "app.bin"
 				//"--release", "--", "-O", "binary", "app.bin"
 			],
 			"presentation": {
