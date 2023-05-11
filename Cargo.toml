@@ -1,23 +1,15 @@
 [package]
-name = "stm32h7-eth-example"
+name = "rusty-stm32"
 version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "rtic-test"
-path = "src/rtic-test.rs"
+name = "blinky"
+path = "src/bin/blinky.rs"
 
 [[bin]]
-name = "rtic-ethernet"
-path = "src/rtic-ethernet.rs"
-
-[[bin]]
-name = "ethernet-test"
-path = "src/ethernet-test.rs"
-
-[[bin]]
-name = "rtic-demo-ethernet"
-path = "src/rtic-demo-ethernet.rs"
+name = "tcp-server"
+path = "src/bin/tcp-server.rs"
 
 [dependencies]
 panic-halt="0.2.0"
@@ -36,5 +28,5 @@ features = ["medium-ethernet", "proto-ipv4", "socket-raw", "medium-ip", "socket-
 debug = true
 opt-level = 0
 
-[profile.dev.package."*"] # +
+[profile.dev.package."*"]
 opt-level = 'z'

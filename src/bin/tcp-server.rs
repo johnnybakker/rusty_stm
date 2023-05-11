@@ -1,8 +1,6 @@
 #![no_main]
 #![no_std]
 
-use panic_halt as _;
-
 use core::sync::atomic::AtomicU32;
 
 use smoltcp::iface::{
@@ -95,13 +93,16 @@ impl<'a> Net<'a> {
 
 #[rtic::app(device = stm32h7xx_hal::stm32, peripherals = true)]
 mod app {
+	
     use stm32h7xx_hal::{ethernet, ethernet::PHY, gpio, prelude::*};
+	use rusty_stm32::prelude::*;
 
     use super::*;
     use core::sync::atomic::Ordering;
 
     #[shared]
     struct SharedResources {}
+
     #[local]
     struct LocalResources {
         net: Net<'static>,
@@ -113,45 +114,26 @@ mod app {
     fn init(mut ctx: init::Context) -> (SharedResources, LocalResources, init::Monotonics) {
   
         // Initialise power...
-		let pwrcfg = ctx.device.PWR.constrain().vos0(&ctx.device.SYSCFG).freeze();
+		let power_config = init_power(ctx.device.PWR, &ctx.device.SYSCFG);
     
         // Link the SRAM3 power state to CPU1
         ctx.device.RCC.ahb2enr.modify(|_, w| w.sram3en().set_bit());
 
         // Initialise clocks...
-        let rcc = ctx.device.RCC.constrain();
- 
-		let ccdr = rcc
-			.use_hse(25.MHz())
-			.sys_ck(480.MHz())
-			.hclk(480.MHz())
-			.pll1_strategy(PllConfigStrategy::Fractional)
-			.pll1_p_ck(480.MHz())
-			.pll1_q_ck(480.MHz())
-			.pll1_r_ck(480.MHz())
-			.pll2_strategy(PllConfigStrategy::Fractional)
-			.pll2_p_ck(240.MHz())
-			.pll2_q_ck(30.MHz())
-			.pll2_r_ck(240.MHz())
-			.pll3_strategy(PllConfigStrategy::Fractional)
-			.pll3_p_ck(50.MHz())
-			.pll3_q_ck(50.MHz())
-			.pll3_r_ck(50.MHz())
-			.mco1_from_hsi(64.MHz())
-			.freeze(pwrcfg, &ctx.device.SYSCFG);
+        let core_clock = init_clock(ctx.device.RCC, power_config, &ctx.device.SYSCFG);
 
         // Initialise system...
         ctx.core.SCB.enable_icache();
         ctx.core.DWT.enable_cycle_counter();
 
         // Initialise IO...
-        let gpioa = ctx.device.GPIOA.split(ccdr.peripheral.GPIOA);
-        let gpiob = ctx.device.GPIOB.split(ccdr.peripheral.GPIOB);
-        let gpioc = ctx.device.GPIOC.split(ccdr.peripheral.GPIOC);
+        let gpioa = ctx.device.GPIOA.split(core_clock.peripheral.GPIOA);
+        let gpiob = ctx.device.GPIOB.split(core_clock.peripheral.GPIOB);
+        let gpioc = ctx.device.GPIOC.split(core_clock.peripheral.GPIOC);
 
 		let tx = gpioa.pa9.into_alternate();
 		let rx = gpioa.pa10.into_alternate();
-		let serial = ctx.device.USART1.serial((tx, rx), 115200.bps(), ccdr.peripheral.USART1, &ccdr.clocks).unwrap();
+		let serial = ctx.device.USART1.serial((tx, rx), 115200.bps(), core_clock.peripheral.USART1, &core_clock.clocks).unwrap();
 
 		let (mut tx, mut _rx) = serial.split();
 		writeln!(tx, "Hello, world!\r").unwrap();
@@ -188,8 +170,8 @@ mod app {
                 ),
                 &mut DES_RING,
                 mac_addr,
-                ccdr.peripheral.ETH1MAC,
-                &ccdr.clocks,
+                core_clock.peripheral.ETH1MAC,
+                &core_clock.clocks,
             )
         };
 
@@ -205,7 +187,7 @@ mod app {
         let net = Net::new(store, eth_dma, mac_addr.into());
 
         // 1ms tick
-        systick_init(ctx.core.SYST, ccdr.clocks);
+        systick_init(ctx.core.SYST, core_clock.clocks);
 
         (
             SharedResources {},
@@ -234,7 +216,7 @@ mod app {
         unsafe { ethernet::interrupt_handler() }
 
         let time = TIME.load(Ordering::Relaxed);
-        ctx.local.net.poll(time as i64);
+        ctx.local.net.poll(time as i64)
     }
 
     #[task(binds = SysTick, priority=15)]
@@ -242,4 +224,15 @@ mod app {
         TIME.fetch_add(1, Ordering::Relaxed);
     }
 
+}
+
+use core::panic::PanicInfo;
+use core::sync::atomic::{self, Ordering};
+
+#[inline(never)]
+#[panic_handler]
+fn panic(_info: &PanicInfo) -> ! {
+    loop {
+        atomic::compiler_fence(Ordering::SeqCst);
+    }
 }

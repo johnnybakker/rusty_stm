@@ -9,11 +9,11 @@
 			"request": "launch",
 			"type": "cortex-debug",
 			"cwd": "${workspaceRoot}",
-			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/release/ethernet-test",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/blinky",
 			"svdFile": "${workspaceFolder}/STM32H750.svd",
 			"servertype": "openocd",
-			"configFiles": ["stlink.cfg", "stm32h7x.cfg"],
-			"preLaunchTask": "Build binary",
+			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
+			"preLaunchTask": "Build blinky",
 			"preLaunchCommands": [
 				"monitor init",
 				"monitor reset init",
@@ -21,10 +21,24 @@
 				"monitor flash write_image erase app.bin 0x08000000"
 			],
 			"postLaunchCommands": [], // Don't stop before at the first line
-			"presentation": {
-				"hidden": false,
-				"order": 1,
-			},
+		},
+		{
+			"name": "Debug TCP Server",
+			"request": "launch",
+			"type": "cortex-debug",
+			"cwd": "${workspaceRoot}",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/tcp-server",
+			"svdFile": "${workspaceFolder}/STM32H750.svd",
+			"servertype": "openocd",
+			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
+			"preLaunchTask": "Build tcp-server",
+			"preLaunchCommands": [
+				"monitor init",
+				"monitor reset init",
+				"monitor halt",
+				"monitor flash write_image erase app.bin 0x08000000"
+			],
+			"postLaunchCommands": [], // Don't stop before at the first line
 		}
 	]
 }

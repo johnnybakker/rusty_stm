@@ -2,26 +2,29 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build binary",
+			"label": "Build blinky",
 			"type": "cargo",
 			"command": "objcopy",
-			"problemMatcher": [
-				"$rustc",
-				"$rust-panic"
-			],
+			"problemMatcher": ["$rustc","$rust-panic"],
 			"group": "build",
-			"args": [
-
-				//"--release",
-				//"--bin", "rtic-test", "--", "-O", "binary", "app.bin"
-				"--bin", "rtic-demo-ethernet", "--", "-O", "binary", "app.bin"
-				//"--release", "--", "-O", "binary", "app.bin"
-			],
+			"args": ["--bin", "blinky", "--", "-O", "binary", "build/blinky.bin"],
 			"presentation": {
-				"echo": true,
 				"reveal": "never",
 				"focus": false,
-				"panel": "shared",
+				"showReuseMessage": false,
+				"clear": true
+			},
+		},
+		{
+			"label": "Build tcp-server",
+			"type": "cargo",
+			"command": "objcopy",
+			"problemMatcher": ["$rustc","$rust-panic"],
+			"group": "build",
+			"args": ["--bin", "tcp-server", "--", "-O", "binary", "build/tcp-server.bin"],
+			"presentation": {
+				"reveal": "never",
+				"focus": false,
 				"showReuseMessage": false,
 				"clear": true
 			}
