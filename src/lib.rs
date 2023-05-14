@@ -2,8 +2,8 @@
 
 pub use stm32h7xx_hal as hal;
 
+
 mod common;
-pub mod ethernet;
 
 pub mod prelude {
 	pub use crate::hal::prelude::*;

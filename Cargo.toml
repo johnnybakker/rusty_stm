@@ -12,12 +12,20 @@ name = "tcp-server"
 path = "src/bin/tcp-server.rs"
 
 [dependencies]
-panic-halt="0.2.0"
-cortex-m = "0.7.4"
-cortex-m-rt = "0.7.1"
-cortex-m-rtic = "1.1"
+cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks"] }
 stm32h7xx-hal = {version = "0.14.0", features = ["stm32h750v","rt", "ethernet", "smoltcp"]}
-systick-monotonic = "1.0.1"
+
+[dependencies.rtic]
+git = "https://github.com/rtic-rs/rtic.git"
+package = "rtic"
+version = "2.0.0-alpha.2"
+features = ["thumbv7-backend"]
+
+[dependencies.rtic-monotonics]
+git = "https://github.com/rtic-rs/rtic.git"
+package = "rtic-monotonics"
+version = "=1.0.0-alpha.2"
+features = ["cortex-m-systick"]
 
 [dependencies.smoltcp]
 version = "0.8.0"
@@ -26,7 +34,7 @@ features = ["medium-ethernet", "proto-ipv4", "socket-raw", "medium-ip", "socket-
 
 [profile.dev]
 debug = true
-opt-level = 0
+opt-level = 'z'
 
 [profile.dev.package."*"]
 opt-level = 'z'

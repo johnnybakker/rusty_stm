@@ -18,7 +18,9 @@
 				"monitor init",
 				"monitor reset init",
 				"monitor halt",
-				"monitor flash write_image erase app.bin 0x08000000"
+				"monitor arm semihosting enable",
+				"monitor flash write_image erase build/blinky.bin 0x08000000",
+				"continue"
 			],
 			"postLaunchCommands": [], // Don't stop before at the first line
 		},
@@ -36,7 +38,8 @@
 				"monitor init",
 				"monitor reset init",
 				"monitor halt",
-				"monitor flash write_image erase app.bin 0x08000000"
+				"monitor arm semihosting enable",
+				"monitor flash write_image erase build/tcp-server.bin 0x08000000"
 			],
 			"postLaunchCommands": [], // Don't stop before at the first line
 		}
