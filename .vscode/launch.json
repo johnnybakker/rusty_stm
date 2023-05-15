@@ -5,26 +5,6 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Debug Blinky",
-			"request": "launch",
-			"type": "cortex-debug",
-			"cwd": "${workspaceRoot}",
-			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/blinky",
-			"svdFile": "${workspaceFolder}/STM32H750.svd",
-			"servertype": "openocd",
-			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
-			"preLaunchTask": "Build blinky",
-			"preLaunchCommands": [
-				"monitor init",
-				"monitor reset init",
-				"monitor halt",
-				"monitor arm semihosting enable",
-				"monitor flash write_image erase build/blinky.bin 0x08000000",
-				"continue"
-			],
-			"postLaunchCommands": [], // Don't stop before at the first line
-		},
-		{
 			"name": "Debug TCP Server",
 			"request": "launch",
 			"type": "cortex-debug",
@@ -41,7 +21,22 @@
 				"monitor arm semihosting enable",
 				"monitor flash write_image erase build/tcp-server.bin 0x08000000"
 			],
-			"postLaunchCommands": [], // Don't stop before at the first line
-		}
+		},
+		{
+			"name": "Upload TCP Server",
+			"request": "launch",
+			"type": "cortex-debug",
+			"cwd": "${workspaceRoot}",
+			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/release/tcp-server",
+			"svdFile": "${workspaceFolder}/STM32H750.svd",
+			"servertype": "openocd",
+			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
+			"preLaunchTask": "Release build tcp-server",
+			"preLaunchCommands": [
+				"monitor init",
+				"monitor reset init",
+				"monitor flash write_image erase build/tcp-server-release.bin 0x08000000",
+			],
+		},
 	]
 }

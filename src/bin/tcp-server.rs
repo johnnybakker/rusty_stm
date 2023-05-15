@@ -2,20 +2,30 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 
+
 #[rtic::app(device = stm32h7xx_hal::stm32, peripherals = true, dispatchers = [EXTI0])]
 mod app {
 	
+	use rusty_stm32::prelude::Net;
+	use smoltcp::socket::TcpSocket;
+	use smoltcp::socket::TcpSocketBuffer;
 	use stm32h7xx_hal::prelude::*;
     use cortex_m_semihosting::{hprintln};
     use rtic_monotonics::systick::*;
+    use rtic_monotonics::*;
 	use stm32h7xx_hal::gpio::PC13;
 	use stm32h7xx_hal::gpio::Output;
 	use stm32h7xx_hal::gpio::PushPull;
 	use stm32h7xx_hal::rcc::PllConfigStrategy;
 	use stm32h7xx_hal::ethernet::{ EthernetDMA, EthernetMAC, DesRing, PHY, phy::LAN8742A };
+	use core::fmt::Write;
+use core::write;
 
     #[shared]
-    struct Shared {}
+    struct Shared {
+		interface: smoltcp::iface::Interface<'static, EthernetDMA<'static, 4, 4>>,
+		requests: u32
+	}
 
     #[local]
     struct Local {
@@ -29,8 +39,14 @@ mod app {
 
 	const MAC_ADDRESS: [u8; 6] = [0x02, 0x00, 0x11, 0x22, 0x33, 0x44];
 
-    #[init]
+    #[init(local = [
+		net: Net<'static> = Net::new(),
+		tx: [u8; 512] = [0; 512],
+		rx: [u8; 512] = [0; 512],
+	])]
     fn init(ctx: init::Context) -> (Shared, Local) {
+
+		
     
 		let pwr = ctx.device.PWR.constrain();
 		let pwrcfg = pwr.vos0(&ctx.device.SYSCFG).freeze();
@@ -40,6 +56,7 @@ mod app {
 		let ccdr = rcc
 			.use_hse(25.MHz())
 			.sys_ck(480.MHz())
+			.sysclk(480.MHz())
 			.pll1_strategy(PllConfigStrategy::Fractional)
 			.pll1_p_ck(480.MHz())
 			.pll1_q_ck(480.MHz())
@@ -66,7 +83,7 @@ mod app {
 
 		let mac_address = smoltcp::wire::EthernetAddress::from_bytes(&MAC_ADDRESS);
    
-        let adapter = unsafe {
+        let (adapter, dma) = unsafe {
 
 			let (dma, mac) = stm32h7xx_hal::ethernet::new(
 				ctx.device.ETHERNET_MAC,
@@ -98,11 +115,15 @@ mod app {
 			stm32h7xx_hal::ethernet::enable_interrupt(); 
 
 	
-			lan8742a
+			(lan8742a, dma)
 		};
+		
+		let ip = [192,168,178,100];
+		let interface = ctx.local.net.create_interface(dma, mac_address.into(), &ip);
 
+		tcp_socket::spawn(ctx.local.rx, ctx.local.tx).unwrap();
 
-        (Shared {}, Local { led: gpioc.pc13.into(), adapter })
+        (Shared { interface, requests: 0 }, Local { led: gpioc.pc13.into(), adapter })
     }
 
 	#[idle]
@@ -110,7 +131,65 @@ mod app {
 
 		adapter_status::spawn().ok();
 
-		loop { }
+		loop {
+			rtic::export::wfi()
+		}
+	}
+
+	#[task(shared = [interface, requests], priority = 1)]
+	async fn tcp_socket(mut ctx: tcp_socket::Context, tx: &'static mut [u8], rx: &'static mut [u8]) {
+
+		let handle = ctx.shared.interface.lock(|interface|{
+			let socket = TcpSocket::new(
+				TcpSocketBuffer::new(&mut rx[..]), 
+				TcpSocketBuffer::new(&mut tx[..])
+			);
+
+			interface.add_socket(socket)
+		});
+
+		
+		loop {
+	
+			(&mut ctx.shared.interface, &mut ctx.shared.requests).lock(|interface, requests|{
+
+				let socket: &mut TcpSocket = interface.get_socket(handle);
+
+				if !socket.is_listening() && !socket.is_open() {
+					socket.close();
+					socket.listen(80).unwrap();
+				} 
+
+				if socket.recv_queue() != 0 {
+					let mut data = [0; 1024];
+					let size = socket.recv_slice(&mut data).unwrap();
+					let message = core::str::from_utf8(&data[0..size]).unwrap();
+					let mut parts = message.split("\r\n");
+				
+					if let Some(line) = parts.next() {
+						let mut line = line.split(' ');
+						
+						let method = line.next();
+						let path = line.next();
+						let _version = line.next();
+
+						if let (Some(method), Some(path)) = (method, path) {
+							if method == "GET" {
+								if path == "/request" {
+									*requests+=1;
+								}
+								write!(socket, "Requests: {}", requests).unwrap();
+							} 
+						}
+					} 
+
+					socket.close();
+				} 
+
+			});
+
+			Systick::delay(1.millis()).await;
+		}
 	}
 
     #[task(local = [led, adapter], priority=1)]
@@ -122,20 +201,18 @@ mod app {
                 _ => ctx.local.led.set_high(),
             }
 
+			Systick::delay(100.millis()).await;
 		}
     }
 
-	#[task(binds = ETH)]
-    fn ethernet_event(_ctx: ethernet_event::Context) {
+	#[task(binds = ETH, shared = [interface])]
+    fn ethernet_event(mut ctx: ethernet_event::Context) {
         unsafe { stm32h7xx_hal::ethernet::interrupt_handler() }
 
-		
-		// ctx.shared.interface.lock(|interface|{
-		// 	interface.poll(Instant::from_millis(time)).unwrap();
-
-
-		// 	handle_socket::spawn().unwrap()
-		// });
+		ctx.shared.interface.lock(|interface|{
+			let now = Systick::now().ticks();
+			interface.poll(smoltcp::time::Instant::from_millis(now)).unwrap();
+		});
     }
 
 

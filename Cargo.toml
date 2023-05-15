@@ -2,17 +2,17 @@
 name = "rusty-stm32"
 version = "0.1.0"
 edition = "2021"
-
-[[bin]]
-name = "blinky"
-path = "src/bin/blinky.rs"
+resolver = "2"
 
 [[bin]]
 name = "tcp-server"
 path = "src/bin/tcp-server.rs"
 
-[dependencies]
+[dev-dependencies]
 cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks"] }
+
+[dependencies]
+cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks", "no-semihosting"] }
 stm32h7xx-hal = {version = "0.14.0", features = ["stm32h750v","rt", "ethernet", "smoltcp"]}
 
 [dependencies.rtic]
@@ -30,7 +30,7 @@ features = ["cortex-m-systick"]
 [dependencies.smoltcp]
 version = "0.8.0"
 default-features = false
-features = ["medium-ethernet", "proto-ipv4", "socket-raw", "medium-ip", "socket-tcp", "socket-udp"]
+features = ["proto-ipv4", "socket-raw", "socket-tcp", "socket-udp", "async"]
 
 [profile.dev]
 debug = true

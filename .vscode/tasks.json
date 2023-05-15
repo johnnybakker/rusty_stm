@@ -2,26 +2,26 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Build blinky",
-			"type": "cargo",
-			"command": "objcopy",
-			"problemMatcher": ["$rustc","$rust-panic"],
-			"group": "build",
-			"args": ["--bin", "blinky", "--", "-O", "binary", "build/blinky.bin"],
-			"presentation": {
-				"reveal": "never",
-				"focus": false,
-				"showReuseMessage": false,
-				"clear": true
-			},
-		},
-		{
 			"label": "Build tcp-server",
 			"type": "cargo",
 			"command": "objcopy",
 			"problemMatcher": ["$rustc","$rust-panic"],
 			"group": "build",
 			"args": ["--bin", "tcp-server", "--", "-O", "binary", "build/tcp-server.bin"],
+			"presentation": {
+				"reveal": "never",
+				"focus": false,
+				"showReuseMessage": false,
+				"clear": true
+			}
+		},
+		{
+			"label": "Release build tcp-server",
+			"type": "cargo",
+			"command": "objcopy",
+			"problemMatcher": ["$rustc","$rust-panic"],
+			"group": "build",
+			"args": ["--release", "--bin", "tcp-server", "--", "-O", "binary", "build/tcp-server.bin"],
 			"presentation": {
 				"reveal": "never",
 				"focus": false,
