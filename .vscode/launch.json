@@ -10,33 +10,12 @@
 			"type": "cortex-debug",
 			"cwd": "${workspaceRoot}",
 			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/debug/tcp-server",
-			"svdFile": "${workspaceFolder}/STM32H750.svd",
-			"servertype": "openocd",
-			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
+			//"svdFile": "${workspaceFolder}/STM32H750.svd",
+			"servertype": "jlink",
+			"serverpath": "C:\\Program Files\\SEGGER\\JLink\\JLinkGDBServerCL.exe", 
+			"device": "STM32H750VB",
+			"interface": "swd",
 			"preLaunchTask": "Build tcp-server",
-			"preLaunchCommands": [
-				"monitor init",
-				"monitor reset init",
-				"monitor halt",
-				"monitor arm semihosting enable",
-				"monitor flash write_image erase build/tcp-server.bin 0x08000000"
-			],
-		},
-		{
-			"name": "Upload TCP Server",
-			"request": "launch",
-			"type": "cortex-debug",
-			"cwd": "${workspaceRoot}",
-			"executable": "${workspaceFolder}/target/thumbv7em-none-eabihf/release/tcp-server",
-			"svdFile": "${workspaceFolder}/STM32H750.svd",
-			"servertype": "openocd",
-			"configFiles": ["jlink.cfg", "stm32h7x.cfg"],
-			"preLaunchTask": "Release build tcp-server",
-			"preLaunchCommands": [
-				"monitor init",
-				"monitor reset init",
-				"monitor flash write_image erase build/tcp-server-release.bin 0x08000000",
-			],
 		},
 	]
 }

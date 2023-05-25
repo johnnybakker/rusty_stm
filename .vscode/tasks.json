@@ -33,7 +33,7 @@
 			"label": "Monitor",
 			"type": "shell",
 			"command": "plink",
-			"args": [ "-serial", "COM5", "-sercfg", "115200,8,n,1,N" ],
+			"args": [ "-serial", "COM6", "-sercfg", "115200,8,n,1,N" ],
 			"presentation": {"echo": false, "clear": true },
 			"dependsOn": ["DHCP Build"]
 		},

@@ -9,10 +9,10 @@ mod app {
 	use rusty_stm32::prelude::Net;
 	use rusty_stm32::version::VERSION;
 	use rusty_stm32::version::VERSION_BRANCH;
-use smoltcp::socket::TcpSocket;
+	use rusty_stm32::version::VERSION_MINUTE;
+	use smoltcp::socket::TcpSocket;
 	use smoltcp::socket::TcpSocketBuffer;
 	use stm32h7xx_hal::prelude::*;
-    use cortex_m_semihosting::{hprintln};
     use rtic_monotonics::systick::*;
     use rtic_monotonics::*;
 	use stm32h7xx_hal::gpio::PC13;
@@ -76,14 +76,18 @@ use smoltcp::socket::TcpSocket;
 
         let systick_token = rtic_monotonics::create_systick_token!();
         Systick::start(ctx.core.SYST, ccdr.clocks.sysclk().raw(), systick_token);
-
-		hprintln!("Version: {} {:?}", VERSION_BRANCH, VERSION);
-
-		hprintln!("init {}", ccdr.clocks.sysclk().raw());
         
 		let gpioa = ctx.device.GPIOA.split(ccdr.peripheral.GPIOA);
         let gpiob = ctx.device.GPIOB.split(ccdr.peripheral.GPIOB);
 		let gpioc = ctx.device.GPIOC.split(ccdr.peripheral.GPIOC);
+
+		let tx = gpioa.pa9.into_alternate();
+		let rx = gpioa.pa10.into_alternate();
+		let serial = ctx.device.USART1.serial((tx, rx), 115200.bps(), ccdr.peripheral.USART1, &ccdr.clocks).unwrap();
+		let (mut tx, mut _rx) = serial.split();
+		writeln!(tx, "Hello, world!\r").unwrap();
+		writeln!(tx, "Version: {} {:?}", VERSION_BRANCH, VERSION);
+		writeln!(tx, "init {}", ccdr.clocks.sysclk().raw());
 
 		let mac_address = smoltcp::wire::EthernetAddress::from_bytes(&MAC_ADDRESS);
    
@@ -136,7 +140,7 @@ use smoltcp::socket::TcpSocket;
 		adapter_status::spawn().ok();
 
 		loop {
-			rtic::export::wfi()
+			//rtic::export::wfi()
 		}
 	}
 
@@ -222,7 +226,6 @@ use smoltcp::socket::TcpSocket;
 
 	#[panic_handler]
 	fn panic(info: &core::panic::PanicInfo) -> ! {
-		hprintln!("Error {}", info);
 		loop {	}
 	}
 }
