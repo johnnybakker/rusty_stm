@@ -7,7 +7,9 @@
 mod app {
 	
 	use rusty_stm32::prelude::Net;
-	use smoltcp::socket::TcpSocket;
+	use rusty_stm32::version::VERSION;
+	use rusty_stm32::version::VERSION_BRANCH;
+use smoltcp::socket::TcpSocket;
 	use smoltcp::socket::TcpSocketBuffer;
 	use stm32h7xx_hal::prelude::*;
     use cortex_m_semihosting::{hprintln};
@@ -19,7 +21,8 @@ mod app {
 	use stm32h7xx_hal::rcc::PllConfigStrategy;
 	use stm32h7xx_hal::ethernet::{ EthernetDMA, EthernetMAC, DesRing, PHY, phy::LAN8742A };
 	use core::fmt::Write;
-use core::write;
+	use core::write;
+
 
     #[shared]
     struct Shared {
@@ -73,6 +76,8 @@ use core::write;
 
         let systick_token = rtic_monotonics::create_systick_token!();
         Systick::start(ctx.core.SYST, ccdr.clocks.sysclk().raw(), systick_token);
+
+		hprintln!("Version: {} {:?}", VERSION_BRANCH, VERSION);
 
 		hprintln!("init {}", ccdr.clocks.sysclk().raw());
         

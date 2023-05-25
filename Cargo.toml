@@ -10,12 +10,13 @@ path = "src/bin/tcp-server.rs"
 
 [build-dependencies]
 git2 = "0.17.1"
+chrono = "0.4.24"
 
 [dev-dependencies]
 cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks"] }
 
 [dependencies]
-cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks", "no-semihosting"] }
+cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks"] }
 stm32h7xx-hal = {version = "0.14.0", features = ["stm32h750v","rt", "ethernet", "smoltcp"]}
 
 [dependencies.rtic]
