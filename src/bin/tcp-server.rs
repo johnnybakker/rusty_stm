@@ -33,7 +33,7 @@ use core::write;
 		adapter: LAN8742A<EthernetMAC>
 	}
 
-	/// Ethernet descriptor rings are a global singleton
+	// /// Ethernet descriptor rings are a global singleton
 	#[link_section = ".sram3.eth"]
 	static mut DES_RING: DesRing<4,4> = DesRing::new();
 
@@ -43,11 +43,10 @@ use core::write;
 		net: Net<'static> = Net::new(),
 		tx: [u8; 512] = [0; 512],
 		rx: [u8; 512] = [0; 512],
+		des_ring: DesRing<4,4> = DesRing::new()
 	])]
     fn init(ctx: init::Context) -> (Shared, Local) {
 
-		
-    
 		let pwr = ctx.device.PWR.constrain();
 		let pwrcfg = pwr.vos0(&ctx.device.SYSCFG).freeze();
 

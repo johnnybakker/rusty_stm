@@ -8,6 +8,9 @@ resolver = "2"
 name = "tcp-server"
 path = "src/bin/tcp-server.rs"
 
+[build-dependencies]
+git2 = "0.17.1"
+
 [dev-dependencies]
 cortex-m-semihosting = { version = "0.5.0", features = ["jlink-quirks"] }
 
